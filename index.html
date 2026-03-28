@@ -1,1 +1,513 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PhysiScope AI | AI物理予測・信頼性評価アプリ</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --bg-soft: #121a31;
+        --card: rgba(18, 26, 49, 0.88);
+        --line: rgba(255, 255, 255, 0.1);
+        --text: #f4f7fb;
+        --muted: #a8b3c7;
+        --accent: #62b0ff;
+        --accent-2: #7ef0c6;
+        --shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+        --max: 1180px;
+        --radius: 24px;
+      }
 
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Inter", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top right, rgba(98, 176, 255, 0.16), transparent 26%),
+          radial-gradient(circle at top left, rgba(126, 240, 198, 0.12), transparent 22%),
+          linear-gradient(180deg, #09101e 0%, #0d1428 45%, #0a1020 100%);
+        line-height: 1.75;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .container {
+        width: min(var(--max), calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        backdrop-filter: blur(14px);
+        background: rgba(7, 12, 24, 0.7);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .topbar-inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        padding: 14px 0;
+      }
+
+      .brand {
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        font-size: 1rem;
+      }
+
+      .brand span {
+        color: var(--accent);
+      }
+
+      .nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .nav a {
+        font-size: 0.92rem;
+        color: var(--muted);
+        padding: 8px 12px;
+        border-radius: 999px;
+        transition: 0.2s ease;
+      }
+
+      .nav a:hover {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      section {
+        padding: 36px 0 56px;
+      }
+
+      .intro {
+        padding-top: 64px;
+      }
+
+      .intro-card {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 28px;
+        align-items: center;
+        background: linear-gradient(180deg, rgba(18, 26, 49, 0.95), rgba(11, 16, 32, 0.92));
+        border: 1px solid var(--line);
+        border-radius: 30px;
+        padding: 28px;
+        box-shadow: var(--shadow);
+      }
+
+      .intro-copy h1 {
+        margin: 0 0 18px;
+        font-size: clamp(2rem, 4vw, 3.5rem);
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+      }
+
+      .intro-copy p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 1.03rem;
+      }
+
+      .intro-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 14px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        color: var(--accent-2);
+        border: 1px solid rgba(126, 240, 198, 0.2);
+        background: rgba(126, 240, 198, 0.08);
+        font-size: 0.88rem;
+        font-weight: 700;
+      }
+
+      .intro-visual {
+        overflow: hidden;
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: #0e172d;
+      }
+
+      .intro-visual img {
+        aspect-ratio: 16 / 10;
+        object-fit: cover;
+      }
+
+      .section-head {
+        max-width: 840px;
+        margin-bottom: 26px;
+      }
+
+      .section-kicker {
+        color: var(--accent-2);
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        font-size: 0.82rem;
+      }
+
+      h2 {
+        margin: 10px 0 12px;
+        font-size: clamp(1.7rem, 4vw, 2.7rem);
+        line-height: 1.15;
+      }
+
+      .section-head p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .page-block {
+        display: grid;
+        grid-template-columns: 1.08fr 0.92fr;
+        gap: 26px;
+        align-items: start;
+        margin-bottom: 32px;
+      }
+
+      .page-block:last-child {
+        margin-bottom: 0;
+      }
+
+      .page-image,
+      .page-copy {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+      }
+
+      .page-image {
+        overflow: hidden;
+      }
+
+      .page-image img {
+        aspect-ratio: 16 / 10;
+        object-fit: cover;
+        background: #13203b;
+      }
+
+      .page-copy {
+        padding: 26px;
+      }
+
+      .page-label {
+        color: var(--accent);
+        font-weight: 800;
+        font-size: 0.88rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .page-copy h3 {
+        margin: 10px 0 12px;
+        font-size: 1.7rem;
+        line-height: 1.2;
+      }
+
+      .page-copy p {
+        margin: 0 0 16px;
+        color: var(--muted);
+      }
+
+      .info-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .info-item {
+        padding: 12px 14px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .info-item strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 0.95rem;
+      }
+
+      .info-item span {
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+
+      .feature-card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 22px;
+        box-shadow: var(--shadow);
+      }
+
+      .feature-card h3 {
+        margin: 0 0 8px;
+        font-size: 1.1rem;
+      }
+
+      .feature-card p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .footer {
+        padding: 28px 0 60px;
+      }
+
+      .footer-card {
+        background: linear-gradient(180deg, rgba(18, 26, 49, 0.95), rgba(11, 16, 32, 0.92));
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        padding: 24px;
+        box-shadow: var(--shadow);
+      }
+
+      .footer-card h3 {
+        margin: 0 0 8px;
+      }
+
+      .footer-card p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      @media (max-width: 980px) {
+        .intro-card,
+        .page-block,
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .topbar-inner {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .page-copy,
+        .feature-card,
+        .footer-card,
+        .intro-card {
+          padding: 20px;
+        }
+
+        .intro {
+          padding-top: 48px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <a href="#top" class="brand">PhysiScope <span>AI</span></a>
+        <nav class="nav">
+          <a href="#pages">画面説明</a>
+          <a href="#features">特徴</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="intro">
+        <div class="container">
+          <div class="intro-card">
+            <div class="intro-copy">
+              <div class="intro-kicker">AI × 物理シミュレーション × 信頼性評価</div>
+              <h1>PhysiScope AI</h1>
+              <p>
+                PhysiScope AI は、物体の軌道や波の広がり、爆風による挙動などの物理現象を、
+                事前学習済みAIモデルによって高速に予測・可視化する支援ツールです。
+                条件を入力すると、AIが即座に物理挙動をアニメーション表示し、
+                さらに通常の数値計算結果との比較、誤差解析、感度解析を通じて、
+                その予測を安心して使えるかまで確認できます。
+                ゲーム開発における物理表現の試作と調整を効率化し、
+                高速な開発支援と品質確認の両立を目指したアプリです。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="pages">
+        <div class="container">
+          <div class="section-head">
+            <div class="section-kicker">Pages</div>
+            <h2>各ページの画面説明</h2>
+            <p>
+              入力、予測、評価の流れに沿って、アプリ全体の使い方と技術的な特徴が伝わる構成にしています。
+            </p>
+          </div>
+
+          <div class="page-block">
+            <div class="page-image">
+              <img src="images/page-01-conditions.png" alt="条件設定ページ" />
+            </div>
+            <div class="page-copy">
+              <div class="page-label">Page 01</div>
+              <h3>条件設定</h3>
+              <p>
+                このページでは、対象とする物理現象と入力条件を設定します。
+                たとえば爆風の強さ、物体の重さ、初期位置、摩擦係数などを調整し、
+                どのAIモデルで予測するかを選択できる構成にしています。
+              </p>
+              <div class="info-list">
+                <div class="info-item">
+                  <strong>表示内容</strong>
+                  <span>シナリオ選択、入力スライダー、モデル選択、実行ボタン</span>
+                </div>
+                <div class="info-item">
+                  <strong>入力項目</strong>
+                  <span>爆発強度、質量、初期位置、反発係数、時間範囲、解像度</span>
+                </div>
+                <div class="info-item">
+                  <strong>役割</strong>
+                  <span>条件を柔軟に変えながら、AI予測を試作ツールとして使える入口になるページ</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="page-block">
+            <div class="page-image">
+              <img src="images/page-02-prediction-compare.png" alt="予測結果・比較ページ" />
+            </div>
+            <div class="page-copy">
+              <div class="page-label">Page 02</div>
+              <h3>予測結果・比較</h3>
+              <p>
+                条件を入力すると、AIが物理挙動を即座に予測し、
+                アニメーションとして可視化します。さらに、通常の数値計算結果も並べて表示し、
+                速度と妥当性の両面から比較できるようにしています。
+              </p>
+              <div class="info-list">
+                <div class="info-item">
+                  <strong>左側</strong>
+                  <span>AIによる予測結果のアニメーション、時刻スライダー、再生操作</span>
+                </div>
+                <div class="info-item">
+                  <strong>右側</strong>
+                  <span>数値計算結果との並列表示、重ね合わせ表示、差分可視化</span>
+                </div>
+                <div class="info-item">
+                  <strong>確認できる指標</strong>
+                  <span>推論時間、計算時間、最大変位、最大速度、平均誤差</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="page-block">
+            <div class="page-image">
+              <img src="images/page-03-reliability.png" alt="誤差解析・信頼性評価ページ" />
+            </div>
+            <div class="page-copy">
+              <div class="page-label">Page 03</div>
+              <h3>誤差解析・信頼性評価</h3>
+              <p>
+                AI予測と数値計算の差を分析し、この条件でAIを使ってよいかを判断するページです。
+                誤差ヒートマップ、時系列の誤差推移、入力条件に対する感度を表示し、
+                単なる高速化ではなく、実運用可能な技術として評価できるようにしています。
+              </p>
+              <div class="info-list">
+                <div class="info-item">
+                  <strong>表示内容</strong>
+                  <span>誤差グラフ、差分ヒートマップ、感度解析、信頼性スコア</span>
+                </div>
+                <div class="info-item">
+                  <strong>判定結果</strong>
+                  <span>使用推奨 / 注意付きで使用可能 / 厳密計算推奨</span>
+                </div>
+                <div class="info-item">
+                  <strong>役割</strong>
+                  <span>AIの高速性だけでなく、どの条件で使えるかまで判断するための評価ページ</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <div class="container">
+          <div class="section-head">
+            <div class="section-kicker">Features</div>
+            <h2>このアプリの特徴</h2>
+            <p>
+              物理挙動の高速試作ツールにとどまらず、予測の信頼性まで確認できる点が特徴です。
+            </p>
+          </div>
+
+          <div class="feature-grid">
+            <article class="feature-card">
+              <h3>高速な試作支援</h3>
+              <p>
+                条件を変更するたびに重い数値計算を回さずに、AIで即座に挙動を確認できます。
+                ゲーム開発における調整作業を効率化できます。
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>数値計算との比較</h3>
+              <p>
+                AI予測だけでなく、従来の数値計算結果も並べて確認できるため、
+                高速性と妥当性を同時に示すことができます。
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>誤差と感度の可視化</h3>
+              <p>
+                誤差の発生箇所や入力条件への依存性を可視化することで、
+                AIモデルの振る舞いをより深く理解できます。
+              </p>
+            </article>
+            <article class="feature-card">
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="footer">
+        <div class="container">
+          <div class="footer-card">
+            <h3>PhysiScope AI</h3>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
